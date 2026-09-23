@@ -1,1 +1,199 @@
 @import "tailwindcss";
+
+:root {
+	color: #20333a;
+	background: #f5f1e8;
+	font-family: Georgia, 'Times New Roman', serif;
+	font-synthesis: none;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	min-width: 320px;
+	background:
+		radial-gradient(circle at 12% 8%, rgba(221, 235, 222, 0.8), transparent 30%),
+		linear-gradient(135deg, #f5f1e8 0%, #edf3ec 100%);
+}
+
+button,
+input {
+	font: inherit;
+}
+
+.booking-shell {
+	width: min(100% - 2rem, 920px);
+	margin: 0 auto;
+	padding: 4rem 0 5rem;
+}
+
+.booking-intro {
+	max-width: 670px;
+	margin-bottom: 2rem;
+}
+
+.eyebrow {
+	margin: 0 0 0.65rem;
+	color: #bd5b3f;
+	font-family: 'Trebuchet MS', sans-serif;
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+}
+
+h1,
+h2,
+p {
+	margin-top: 0;
+}
+
+h1 {
+	max-width: 650px;
+	margin-bottom: 1rem;
+	color: #20333a;
+	font-size: 4.5rem;
+	line-height: 0.98;
+}
+
+.booking-intro > p:not(.eyebrow) {
+	max-width: 540px;
+	color: #52646a;
+	font-size: 1.08rem;
+	line-height: 1.6;
+}
+
+.picker-panel {
+	padding: clamp(1.25rem, 4vw, 2.5rem);
+	border: 1px solid rgba(32, 51, 58, 0.14);
+	border-radius: 8px;
+	background: rgba(255, 253, 248, 0.82);
+	box-shadow: 0 24px 60px rgba(44, 63, 55, 0.12);
+}
+
+.panel-heading,
+.slot-heading {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+h2 {
+	margin-bottom: 0;
+	font-size: 1.55rem;
+}
+
+.date-window,
+.loading-label {
+	color: #bd5b3f;
+	font-family: 'Trebuchet MS', sans-serif;
+	font-size: 0.78rem;
+	font-weight: 700;
+}
+
+.picker-controls {
+	display: grid;
+	grid-template-columns: 1.2fr 1fr;
+	gap: 1rem;
+	margin: 2rem 0 2.5rem;
+}
+
+label {
+	display: grid;
+	gap: 0.5rem;
+	color: #52646a;
+	font-family: 'Trebuchet MS', sans-serif;
+	font-size: 0.8rem;
+	font-weight: 700;
+}
+
+input {
+	width: 100%;
+	min-height: 3rem;
+	padding: 0.7rem 0.85rem;
+	border: 1px solid #cbd8d1;
+	border-radius: 4px;
+	color: #20333a;
+	background: #fffdf8;
+}
+
+input:focus {
+	outline: 3px solid rgba(189, 91, 63, 0.2);
+	border-color: #bd5b3f;
+}
+
+.slot-heading {
+	align-items: center;
+	padding-top: 1.5rem;
+	border-top: 1px solid #dbe4dc;
+}
+
+.slot-grid {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: 0.7rem;
+	margin-top: 1rem;
+}
+
+.slot-card {
+	display: grid;
+	gap: 0.4rem;
+	min-height: 6rem;
+	padding: 0.9rem 0.7rem;
+	border: 1px solid #cbd8d1;
+	border-radius: 4px;
+	color: #20333a;
+	background: #f1f6f0;
+	text-align: left;
+	cursor: pointer;
+	transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.slot-card:hover,
+.slot-card:focus-visible {
+	border-color: #bd5b3f;
+	background: #fff5e9;
+	transform: translateY(-2px);
+}
+
+.slot-time {
+	font-size: 1.25rem;
+	font-weight: 700;
+}
+
+.slot-capacity {
+	color: #61756c;
+	font-family: 'Trebuchet MS', sans-serif;
+	font-size: 0.72rem;
+}
+
+.feedback,
+.empty-state {
+	margin: 1rem 0 0;
+	padding: 1rem;
+	border-left: 3px solid #bd5b3f;
+	color: #52646a;
+	background: #fff5e9;
+}
+
+@media (max-width: 680px) {
+	.booking-shell {
+		padding-top: 2.5rem;
+	}
+
+	h1 {
+		font-size: 2.6rem;
+	}
+
+	.picker-controls,
+	.slot-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.slot-card {
+		min-height: 4.5rem;
+	}
+}

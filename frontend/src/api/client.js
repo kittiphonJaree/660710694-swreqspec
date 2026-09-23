@@ -18,3 +18,20 @@ export const api = {
     return { status: res.status, body: await res.json() }
   },
 }
+
+export const mockApi = {
+  // รองรับ FR-BKG-01 และ FR-BKG-06 สำหรับการพัฒนาหน้าจอก่อนมี API จริง
+  async getSlots({ dateFrom, packageCode }) {
+    const times = ['08:30:00', '09:00:00', '10:30:00', '13:00:00', '14:30:00']
+    const packageOffset = packageCode.length % 3
+    return {
+      slots: times.map((startTime, index) => ({
+        id: `${dateFrom}-${packageCode}-${index}`,
+        slot_date: dateFrom,
+        start_time: startTime,
+        package_code: packageCode,
+        remaining: Math.max(1, 6 - ((index + packageOffset) % 5)),
+      })),
+    }
+  },
+}
