@@ -59,3 +59,11 @@
 - Open Question ที่ยังรอ: Q-02 ทำให้ task ที่เกี่ยวกับการออกหรือแสดงหมายเลขคิวมีสถานะ `รอ Q-02`
 
 ---
+
+## 2026-09-23 คำสั่ง: /implement T-01 specs/001-booking/tasks.md
+
+- ไฟล์ที่สร้างหรือแก้: `backend/app/db/models.py`, `backend/app/db/session.py`, `backend/app/db/migrations/001_init.py`, `backend/tests/conftest.py`, `specs/001-booking/tasks.md`
+- ผล test: `pytest -q` ไม่พบ test ที่เก็บได้ใน `conftest.py`; smoke check เรียก `upgrade()` ผ่านและยืนยันว่ามีตาราง `slots`, `bookings`, `audit_logs` และไม่มี `national_id`; `compileall` ผ่าน
+- สิ่งที่เกือบต้องเดาแต่ถามแทน: ไม่ได้เดาเรื่องรูปแบบหรือวิธีออก `queue_no`; กำหนดคอลัมน์เป็น nullable ตาม Q-02 ที่ยังเปิดอยู่
+
+---
