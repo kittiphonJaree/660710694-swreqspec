@@ -53,3 +53,39 @@
 - ผลลัพธ์: สร้างแถวแบบร่าง 3 แถวใน specs/001-booking/test-cases.md สำหรับ AC-BKG-01 จาก spec.md และ plan.md
 - เงื่อนไขที่ต้องทีมตรวจต่อ: ขอบทางผิดใน Then สำหรับการปฏิเสธเมื่อ slot เต็มหรือยืนยันตัวตนไม่ถูกต้องเป็นผลที่สืบเนื่องจาก IF-IDP-01/FR-BKG-04 แต่ยังไม่ระบุชัดเจนใน AC
 - รายงาน: "ตรวจแถวในตาราง แก้ได้ตามต้องการ แล้วเปลี่ยนสถานะเป็น 'ใช้ได้' ก่อน จากนั้นสั่ง /testcases อีกครั้ง"
+
+---
+
+## 2569-10-07 08:41 คำสั่ง: /testcases AC-BKG-01 specs/001-booking/
+
+- เครื่องมือ: Copilot ใน Codespaces (Agent, Auto)
+- ผลลัพธ์: ตรวจพบแถว TC-BKG-01-3 สถานะ "ใช้ได้" ใน specs/001-booking/test-cases.md จึงเขียน test ใน backend/tests/test_AC_BKG_01.py ต่อท้าย test เดิม โดยไม่ลบ test เก่า
+- ข้อสังเกต: test ที่เขียนตรงตามแถวนี้คาดหวัง HTTP 409 เมื่อ slot เหลือ 0 ซึ่งตรงกับ AC ทางผิด แต่ระบบปัจจุบันยังไม่ผ่าน
+- ผลการรัน: pytest tests/test_AC_BKG_01.py -q -> 1 passed, 1 failed
+
+---
+
+## 2569-10-07 08:44 คำสั่ง: /testcases AC-BKG-01 specs/001-booking/
+
+- เครื่องมือ: Copilot ใน Codespaces (Agent, Auto)
+- ผลลัพธ์: ตรวจสถานะใน specs/001-booking/test-cases.md พบว่า TC-BKG-01-3 เป็น "ใช้ได้" และมี test อยู่แล้ว ส่วน TC-BKG-01-1 และ TC-BKG-01-2 ยังเป็น "ร่าง" จึงไม่สร้าง test เพิ่มสำหรับสองแถวดังกล่าว และไม่แก้โค้ดระบบ
+- ผลการรัน: `cd backend && pytest -v` -> 1 failed, 4 passed
+- สาเหตุที่ไม่ผ่าน: `test_TC_BKG_01_3_booking_rejected_when_slot_unavailable` คาดหวัง HTTP 409 เมื่อที่นั่งเหลือ 0 แต่ได้ HTTP 201; จุดที่เกี่ยวข้องใน backend/app/booking/service.py คือการตรวจ `slot.remaining < 0`
+
+---
+
+## 2569-10-07 08:46 คำสั่ง: /verify specs/001-booking/
+
+- เครื่องมือ: Copilot ใน Codespaces (Agent, Auto)
+- ผลทดสอบ backend: `cd backend && pytest -v` -> 4 ผ่าน, 1 ไม่ผ่าน; test frontend อื่นนอกจาก setup ไม่มี จึงไม่รัน
+- ผล RTM: 15 แถว requirement — ครบ 0, ยังไม่ถึง 9, รอ Q 0, ช่องโหว่ 6
+- ข้อค้นพบใหม่ใน specs/001-booking/rtm.md: F-01 ถึง F-09
+- ไฟล์ที่แก้ได้ตามขอบเขต: สร้าง specs/001-booking/rtm.md และเพิ่มบันทึกนี้ท้าย prompt-log.md; ไม่แก้ spec, plan, tasks, code หรือ tests
+
+---
+
+## 2569-10-07 08:51 คำสั่ง: แก้โค้ด F-09 — ลบ endpoint และ cancel_booking ที่อยู่ใน Out of scope (UC-02)
+
+- ผลลัพธ์: ลบ `DELETE /bookings/{booking_id}` จาก `backend/app/booking/router.py` และลบ `cancel_booking` จาก `backend/app/booking/service.py`
+- อัปเดต `specs/001-booking/rtm.md`: ย้าย F-09 ไปหัวข้อ "แก้แล้ว" พร้อมเกณฑ์ตรวจว่าไม่พบ endpoint/function ยกเลิกใน `backend/app/`
+- ไม่แตะ test หรือการแก้ไขเดิมอื่นใน worktree
