@@ -1,54 +1,52 @@
+# เตรียมฐานข้อมูล SQLite ในหน่วยความจำให้ทุก test (ไม่ต้องมี PostgreSQL จริง)
+from datetime import date, time, timedelta
+
 import pytest
-from sqlalchemy import inspect
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
-from app.db.models import Base
+from app.db.models import Base, Slot
+from app.db.session import get_db
+from app.main import app
+
+# ผู้รับบริการที่ยืนยันตัวตนแล้ว HN 0001234
+AUTH = {"Authorization": "Bearer verified:0001234"}
 
 
 @pytest.fixture
-def database_engine():
-    """รองรับ CON-TECH-01 โดยทดสอบ schema เดียวกันบน SQLite ใน-memory ตาม plan."""
-    engine = create_engine("sqlite:///:memory:", future=True)
+def db():
+    engine = create_engine(
+        "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
+    )
     Base.metadata.create_all(engine)
-    try:
-        yield engine
-    finally:
-        engine.dispose()
+    session = sessionmaker(bind=engine, autoflush=False)()
+    yield session
+    session.close()
 
 
 @pytest.fixture
-def database_session(database_engine):
-    """รองรับ FR-BKG-01, FR-BKG-02 และ FR-BKG-04 ด้วย session สำหรับ test."""
-    with Session(database_engine) as session:
-        yield session
+def client(db):
+    app.dependency_overrides[get_db] = lambda: db
+    yield TestClient(app)
+    app.dependency_overrides.clear()
 
 
-def test_schema_has_required_tables(database_engine):
-    """ยืนยันว่า migration พื้นฐานสร้างตารางของ T-01 ครบและไม่เก็บเลขบัตรประชาชน."""
-    inspector = inspect(database_engine)
-    assert set(inspector.get_table_names()) == {"slots", "bookings", "audit_logs"}
-    assert "national_id" not in {
-        column["name"] for column in inspector.get_columns("bookings")
-    }
-
-
-def pytest_sessionfinish(session, exitstatus):
-    """รองรับ T-01 โดยให้ pytest ตรวจ schema เมื่อไม่มี test module อื่นให้เก็บ."""
-    if session.testscollected:
-        return
-
-    engine = create_engine("sqlite:///:memory:", future=True)
-    try:
-        Base.metadata.create_all(engine)
-        inspector = inspect(engine)
-        assert set(inspector.get_table_names()) == {"slots", "bookings", "audit_logs"}
-        assert "national_id" not in {
-            column["name"] for column in inspector.get_columns("bookings")
-        }
-        session.exitstatus = 0
-    except AssertionError:
-        session.exitstatus = 1
-        raise
-    finally:
-        engine.dispose()
+@pytest.fixture
+def make_slot(db):
+    """สร้างช่วงเวลา 1 ช่วง ค่าเริ่มต้นคือพรุ่งนี้ 09.00 น. แพ็กเกจ BASIC"""
+    def _make(start="09:00", remaining=1, capacity=None, days_from_today=1, package_code="BASIC"):
+        h, m = map(int, start.split(":"))
+        slot = Slot(
+            slot_date=date.today() + timedelta(days=days_from_today),
+            start_time=time(h, m),
+            package_code=package_code,
+            capacity=capacity if capacity is not None else max(remaining, 1),
+            remaining=remaining,
+        )
+        db.add(slot)
+        db.commit()
+        db.refresh(slot)
+        return slot
+    return _make

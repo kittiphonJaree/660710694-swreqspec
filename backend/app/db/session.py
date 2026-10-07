@@ -1,17 +1,17 @@
-import os
+# สร้าง engine และ session ของฐานข้อมูล (CON-TECH-01)
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-from sqlalchemy import Engine, create_engine
-from sqlalchemy.orm import Session, sessionmaker
+from app.config import DATABASE_URL
 
-
-def create_database_engine(database_url: str | None = None) -> Engine:
-    """รองรับ CON-TECH-01 ด้วย DATABASE_URL ที่เลือก PostgreSQL ในระบบจริง."""
-    resolved_url = database_url or os.getenv("DATABASE_URL")
-    if not resolved_url:
-        raise RuntimeError("DATABASE_URL must be configured")
-    return create_engine(resolved_url, future=True)
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(bind=engine, autoflush=False)
 
 
-def create_session_factory(database_url: str | None = None) -> sessionmaker[Session]:
-    """รองรับ CON-TECH-01 ด้วย session factory จาก engine ของฐานข้อมูล."""
-    return sessionmaker(bind=create_database_engine(database_url), expire_on_commit=False)
+def get_db():
+    """ส่ง session ให้ API แต่ละตัว แล้วปิดเมื่อจบ"""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
